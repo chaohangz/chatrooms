@@ -2,14 +2,21 @@
   "name": "chatrooms",
   "version": "0.0.1",
   "description": "Minimalist multiroom chat server",
-  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chaohangz/chatrooms.git"
+  },
   "author": "chaohangz",
-  "license": "ISC",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/chaohangz/chatrooms/issues"
+  },
+  "homepage": "https://github.com/chaohangz/chatrooms#readme",
   "dependencies": {
     "mime": "^1.3.4",
-    "socket.io": "^1.5.1"
+    "socket.io": "^1.7.2"
   }
 }

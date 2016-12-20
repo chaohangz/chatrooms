@@ -1,82 +1,61 @@
-var http = require('http'),
-    fs = require('fs'),
-    path = require('path'),
-    mime = require('mime'),
-    cache = {};
+var http = require('http')
+var fs = require('fs')
+var path = require('path')
+var mime = require('mime')
+var cache = {} //缓存文件内容的对象
 
-
-//send 404 Error
+//错误响应
 function send404(response) {
-    response.writeHead(404, {'Content-Type':'text/plain'});
-    response.write('Error 404: resource not found.');
-    response.end();
+	response.writeHead(404, {'Content-Type': 'text/plain'})
+	response.write('Error 404: resource not found.')
+	response.end()
 }
 
-//send file
+//发送文件内容
 function sendFile(response, filePath, fileContents) {
-    response.writeHead(
-        200,
-        {'Content-Type': mime.lookup(path.basename(filePath))}
-    );
-    response.end(fileContents);
+	response.writeHead(
+		200,
+		{"content-type": mime.lookup(path.basename(filePath))}
+	)
+	response.end(fileContents)
 }
 
-//static files serve
-function serveStatic(response, cache, absPath) {
-    //check the file whether there is a cache
-    if (cache[absPath]) {
-        //return the file from the cache
-        sendFile(response, absPath, cache[absPath]);
-    } else {
-        //check the file exists
-        fs.exists(absPath, function(exists) {
-            if (exists) {
-                //if exists, read from the disk
-                fs.readFile(absPath, function (err, data) {
-                    if (err) {
-                        send404(response);
-                    } else {
-                        //read from the disk and return
-                        cache[absPath] = data;
-                        sendFile(response, absPath, data);
-                    }
-                });
-            } else {
-                send404(response);
-            }
-        });
-    }
+//判断文件在内存中还是硬盘中或者不存在
+function serverStatic(response, cache, absPath) {
+	if (cache[absPath]) {
+		sendFile(response, absPath, cache[absPath])
+	} else {
+		fs.exists(absPath, function(exists) {
+			if (exists) {
+				fs.readFile(absPath, function(err, data) {
+					if (err) {
+						send404(response)
+					} else {
+						cache[absPath] = data
+						sendFile(response, absPath, data)
+					}
+				})
+			} else {
+				send404(response)
+			}
+		})
+	}
 }
 
 
-//creat HTTP server
+//创建HTTP服务器
 var server = http.createServer(function(request, response) {
-    var filePath = false;
+	var filePath = false;
 
-    if (request.url == '/') {
-        filePath = 'public/index.html';
-    } else {
-        //the URL path to the relative path
-        filePath = 'public' + request.url;
-    }
-
-    var absPath = './' + filePath;
-    serveStatic(response, cache, absPath);
-});
+	if (request.url === '/') {
+		filePath = 'public/index.html'
+	} else {
+		filePath = 'public' + request.url
+	}
+	var absPath = './' + filePath
+	serverStatic(response, cache, absPath)
+})
 
 server.listen(3000, function() {
-    console.log("Server listening on port 3000.");
-});
-
-
-
-
-
-
-
-
-
-
-
-
-
+	console.log('server listening on port 3000')
+})
