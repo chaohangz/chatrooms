@@ -3,6 +3,7 @@ var fs = require('fs')
 var path = require('path')
 var mime = require('mime')
 var cache = {} //缓存文件内容的对象
+var chatServer = require('./lib/chat_server')
 
 //错误响应
 function send404(response) {
@@ -59,3 +60,9 @@ var server = http.createServer(function(request, response) {
 server.listen(3000, function() {
 	console.log('server listening on port 3000')
 })
+
+
+//启动Socket.IO服务器
+//为它提供已经定义好的HTTP服务器
+//这样它就能跟HTTP服务器共享同一个TCP/IP
+chatServer.listen(server)
